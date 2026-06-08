@@ -148,7 +148,10 @@ export default function Admin() {
 	useEffect(() => {
 		setMatchesLoading(true);
 		fetch("/api/matches/live")
-			.then((r) => r.json())
+			.then((r) => {
+				if (!r.ok) throw new Error("Failed to load live matches");
+				return r.json();
+			})
 			.then((data) => {
 				setLiveMatches(data);
 				setMatchesLoading(false);
@@ -163,12 +166,16 @@ export default function Admin() {
 	useEffect(() => {
 		setUpcomingLoading(true);
 		fetch("/api/matches/upcoming")
-			.then((r) => r.json())
+			.then((r) => {
+				if (!r.ok) throw new Error("Failed to load upcoming matches");
+				return r.json();
+			})
 			.then((data) => {
 				setUpcomingMatches(data);
 				setUpcomingLoading(false);
 			})
 			.catch(() => {
+				setError("Failed to load upcoming matches");
 				setUpcomingLoading(false);
 			});
 	}, []);
