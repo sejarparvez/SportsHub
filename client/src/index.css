@@ -1,0 +1,249 @@
+@import "tailwindcss";
+
+/* ─── Custom Fonts ─── */
+:root {
+    --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+    --font-mono: "JetBrains Mono", ui-monospace, monospace;
+}
+
+body {
+    margin: 0;
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+/* ─── Custom Keyframes ─── */
+
+/* Score pop when a goal is scored */
+@keyframes score-pop {
+    0% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.35);
+    }
+    100% {
+        transform: scale(1);
+    }
+}
+
+/* Slide up from bottom */
+@keyframes slide-up {
+    0% {
+        opacity: 0;
+        transform: translateY(40px) scale(0.95);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+/* Slide up and fade out */
+@keyframes slide-up-out {
+    0% {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    15% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+    85% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+    100% {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+}
+
+/* Slide down from top (goal popup on stream) */
+@keyframes slide-down-in {
+    0% {
+        opacity: 0;
+        transform: translateY(-60px) scale(0.9);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+@keyframes slide-down-out {
+    0% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+    100% {
+        opacity: 0;
+        transform: translateY(-60px) scale(0.9);
+    }
+}
+
+/* Fullscreen overlay fade in */
+@keyframes overlay-fade-in {
+    0% {
+        opacity: 0;
+        backdrop-filter: blur(0px);
+    }
+    100% {
+        opacity: 1;
+        backdrop-filter: blur(4px);
+    }
+}
+
+/* Fulltime popup scale */
+@keyframes popup-scale {
+    0% {
+        opacity: 0;
+        transform: scale(0.5) translateY(20px);
+    }
+    60% {
+        transform: scale(1.05) translateY(-5px);
+    }
+    100% {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+
+/* Pulse dot for live indicator */
+@keyframes pulse-dot {
+    0%,
+    100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.3;
+    }
+}
+
+/* Shimmer for loading state */
+@keyframes shimmer {
+    0% {
+        background-position: -200% 0;
+    }
+    100% {
+        background-position: 200% 0;
+    }
+}
+
+/* Glow pulse for the scoreboard */
+@keyframes glow-pulse {
+    0%,
+    100% {
+        box-shadow:
+            0 0 20px rgba(255, 255, 255, 0.05),
+            0 0 40px rgba(59, 130, 246, 0.1);
+    }
+    50% {
+        box-shadow:
+            0 0 30px rgba(255, 255, 255, 0.1),
+            0 0 60px rgba(59, 130, 246, 0.2);
+    }
+}
+
+/* Float animation for waiting state */
+@keyframes float {
+    0%,
+    100% {
+        transform: translateY(0px);
+    }
+    50% {
+        transform: translateY(-10px);
+    }
+}
+
+/* Border shimmer for live indicator */
+@keyframes border-shimmer {
+    0% {
+        border-color: rgba(255, 255, 255, 0.08);
+    }
+    50% {
+        border-color: rgba(59, 130, 246, 0.3);
+    }
+    100% {
+        border-color: rgba(255, 255, 255, 0.08);
+    }
+}
+
+/* ─── Utility Classes ─── */
+
+.animate-score-pop {
+    animation: score-pop 0.5s ease-out;
+}
+
+.animate-slide-up {
+    animation: slide-up 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.animate-slide-up-out {
+    animation: slide-up-out 4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-slide-down-in {
+    animation: slide-down-in 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-slide-down-out {
+    animation: slide-down-out 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-overlay-fade-in {
+    animation: overlay-fade-in 0.5s ease-out forwards;
+}
+
+.animate-popup-scale {
+    animation: popup-scale 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-pulse-dot {
+    animation: pulse-dot 1.5s ease-in-out infinite;
+}
+
+.animate-glow-pulse {
+    animation: glow-pulse 3s ease-in-out infinite;
+}
+
+.animate-float {
+    animation: float 3s ease-in-out infinite;
+}
+
+.animate-border-shimmer {
+    animation: border-shimmer 2s ease-in-out infinite;
+}
+
+.animate-shimmer {
+    background: linear-gradient(
+        90deg,
+        transparent,
+        rgba(255, 255, 255, 0.06),
+        rgba(255, 255, 255, 0.1),
+        rgba(255, 255, 255, 0.06),
+        transparent
+    );
+    background-size: 200% 100%;
+    animation: shimmer 2s infinite;
+}
+
+/* ─── Scrollbar Styling ─── */
+
+::-webkit-scrollbar {
+    width: 6px;
+}
+
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.2);
+}

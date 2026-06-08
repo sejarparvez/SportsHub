@@ -1,0 +1,21 @@
+{
+  "name": "sportshub",
+  "type": "module",
+  "scripts": {
+    "dev:server": "bun --hot server/index.ts",
+    "dev:client": "cd client && bun vite",
+    "build": "cd client && bun vite build",
+    "start": "bun server/index.ts",
+    "check": "biome check",
+    "format": "biome check --write"
+  },
+  "dependencies": {
+    "cors": "^2.8.6",
+    "express": "^5.2.1"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^1.9.4",
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.6"
+  }
+}
