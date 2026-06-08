@@ -121,6 +121,7 @@ Here's the complete workflow from a fresh machine to a live score on Facebook:
 
 ```bash
 # 1. Clone and install
+git clone https://github.com/sejarparvez/SportsHub
 cd SportsHub
 bun install
 cd client && bun install && cd ..
