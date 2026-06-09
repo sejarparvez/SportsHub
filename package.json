@@ -2,10 +2,11 @@
   "name": "sportshub",
   "type": "module",
   "scripts": {
+    "postinstall": "cd client && bun install",
     "dev:server": "bun --hot server/index.ts",
     "dev:client": "cd client && bun vite",
     "build": "cd client && bun vite build",
-    "start": "bun server/index.ts",
+    "start": "apt-get update -qq && apt-get install -y -qq curl && bun server/index.ts",
     "check": "biome check",
     "format": "biome check --write"
   },
