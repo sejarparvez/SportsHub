@@ -1,3 +1,25 @@
+export interface TeamColors {
+	primary?: string
+	secondary?: string
+	text?: string
+}
+
+export interface TournamentInfo {
+	name: string
+	round?: string
+	roundNumber?: number
+}
+
+export interface GoalScorer {
+	playerName: string
+	minute: number
+	addedTime?: number
+	isHome: boolean
+	assist?: string
+	isOwnGoal?: boolean
+	isPenalty?: boolean
+}
+
 export type MatchStatus =
 	| "SCHEDULED"
 	| "TIMED"
@@ -13,6 +35,8 @@ export interface Team {
 	name: string
 	crest: string
 	score: number
+	halfTimeScore?: number
+	colors?: TeamColors
 }
 
 export interface GameState {
@@ -22,6 +46,9 @@ export interface GameState {
 	minute: number
 	status: MatchStatus
 	lastUpdated: string
+	tournament?: TournamentInfo
+	season?: string
+	goals?: GoalScorer[]
 }
 
 export interface GoalEventData {

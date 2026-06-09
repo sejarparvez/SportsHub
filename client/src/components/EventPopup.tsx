@@ -61,8 +61,8 @@ function MatchStartedPopup() {
 
 function FulltimePopup() {
 	return (
-		<div className="fixed inset-0 flex items-center justify-center z-50 animate-overlay-fade-in bg-black/70 pointer-events-none select-none">
-			<div className="animate-popup-scale bg-linear-to-b from-white to-gray-100 text-gray-900 px-20 py-12 rounded-3xl shadow-2xl shadow-black/40 border border-white/20">
+		<div className="fixed inset-0 flex items-center justify-center z-50 animate-overlay-fade-in bg-white/60 backdrop-blur-sm pointer-events-none select-none">
+			<div className="animate-popup-scale bg-white/90 backdrop-blur-2xl text-gray-900 px-20 py-12 rounded-3xl shadow-2xl shadow-black/10 border border-white/60">
 				<div className="flex flex-col items-center gap-4">
 					<span className="text-7xl">🏁</span>
 					<p className="text-7xl font-black tracking-tight">FULL TIME</p>

@@ -6,10 +6,12 @@ import express from "express"
 import type { MatchStatus } from "../shared/types"
 import { AUTO_DETECT_INTERVAL, POLL_INTERVALS } from "./constants"
 import {
+	fetchIncidents,
 	fetchLiveMatches,
 	fetchMatch,
 	fetchScheduledMatches,
 	toGameState,
+	toGoalScorers,
 	toUpcomingMatch,
 } from "./footballApi"
 import { getState, resetState, setState } from "./gameState"
@@ -65,6 +67,15 @@ app.post("/api/match/select", async (req, res) => {
 	try {
 		const match = await fetchMatch(matchId)
 		const state = toGameState(match)
+
+		// Fetch incidents for goal timeline
+		try {
+			const incidents = await fetchIncidents(matchId)
+			state.goals = toGoalScorers(incidents)
+		} catch {
+			// Incidents are optional; continue without them
+		}
+
 		setState(state)
 		broadcast("state:init", state)
 		startPolling(matchId)
@@ -262,6 +273,9 @@ function startPolling(matchId: number): void {
 			const match = await fetchMatch(matchId)
 			const newState = toGameState(match)
 			const oldState = getState()
+
+			// Preserve goal timeline from initial fetch (not re-fetched during polling)
+			newState.goals = oldState.goals
 
 			// Match just started (SCHEDULED → IN_PLAY)
 			if (

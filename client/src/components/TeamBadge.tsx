@@ -2,6 +2,7 @@ interface Props {
 	name: string;
 	crest: string;
 	size?: "sm" | "md" | "lg";
+	light?: boolean;
 }
 
 const sizeMap = {
@@ -35,13 +36,13 @@ function teamInitials(name: string): string {
 	return name.slice(0, 2).toUpperCase();
 }
 
-export default function TeamBadge({ name, crest, size = "md" }: Props) {
+export default function TeamBadge({ name, crest, size = "md", light }: Props) {
 	const s = sizeMap[size];
 
 	if (crest) {
 		return (
 			<div
-				className={`${s.wrapper} rounded-full bg-white/10 backdrop-blur-sm flex items-center justify-center p-1.5 ring-2 ring-white/20`}
+				className={`${s.wrapper} rounded-full ${light ? "bg-white/60" : "bg-white/10"} backdrop-blur-sm flex items-center justify-center p-1.5 ring-2 ${light ? "ring-black/10" : "ring-white/20"}`}
 			>
 				<img
 					src={crest}
@@ -58,7 +59,7 @@ export default function TeamBadge({ name, crest, size = "md" }: Props) {
 
 	return (
 		<div
-			className={`${s.wrapper} rounded-full flex items-center justify-center ring-2 ring-white/10 shadow-inner`}
+			className={`${s.wrapper} rounded-full flex items-center justify-center ring-2 ${light ? "ring-black/8" : "ring-white/10"} shadow-inner`}
 			style={{
 				background: `linear-gradient(135deg, hsl(${hue}, 55%, 35%), hsl(${hue + 30}, 60%, 25%))`,
 			}}

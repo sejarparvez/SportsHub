@@ -5,3 +5,4 @@ dist
 index
 index.exe
 *.log
+.zed

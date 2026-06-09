@@ -52,6 +52,16 @@ interface SofascoreTeam {
 	name: string
 	shortName?: string
 	nameCode?: string
+	teamColors?: {
+		primary?: string
+		secondary?: string
+		text?: string
+	}
+}
+
+interface SofascoreRoundInfo {
+	round?: number
+	name?: string
 }
 
 interface SofascoreEvent {
@@ -75,10 +85,41 @@ interface SofascoreEvent {
 	startTimestamp: number
 	tournament: {
 		name: string
+		uniqueTournament?: {
+			name: string
+		}
 		category?: {
 			name: string
 		}
 	}
+	roundInfo?: SofascoreRoundInfo
+	season?: {
+		name: string
+		year: string
+	}
+}
+
+interface SofascoreIncident {
+	id: number
+	time: number
+	addedTime?: number
+	incidentType: string
+	incidentClass?: string
+	isHome: boolean
+	homeScore: number
+	awayScore: number
+	player?: {
+		name: string
+		shortName?: string
+	}
+	assist1?: {
+		name: string
+	}
+	goalType?: string
+}
+
+interface SofascoreIncidentsResponse {
+	incidents: SofascoreIncident[]
 }
 
 interface SofascoreResponse {
@@ -167,7 +208,30 @@ export async function fetchMatch(id: number): Promise<SofascoreEvent> {
 	return data.event
 }
 
+export async function fetchIncidents(id: number): Promise<SofascoreIncident[]> {
+	const res = await apiFetch(`/event/${id}/incidents`)
+	const data = (await res.json()) as SofascoreIncidentsResponse
+	return data.incidents ?? []
+}
+
+export function toGoalScorers(
+	incidents: SofascoreIncident[],
+): import("../shared/types").GoalScorer[] {
+	return incidents
+		.filter((i) => i.incidentType === "goal")
+		.map((i) => ({
+			playerName: i.player?.shortName ?? i.player?.name ?? "Unknown",
+			minute: i.time,
+			addedTime: i.addedTime,
+			isHome: i.isHome,
+			assist: i.assist1?.name,
+			isOwnGoal: i.goalType === "own-goal",
+			isPenalty: i.goalType === "penality",
+		}))
+}
+
 export function toGameState(event: SofascoreEvent): GameState {
+	const tournamentName = event.tournament.uniqueTournament?.name ?? event.tournament.name
 	return {
 		matchId: event.id,
 		homeTeam: {
@@ -175,16 +239,34 @@ export function toGameState(event: SofascoreEvent): GameState {
 			name: event.homeTeam.name,
 			crest: `https://api.sofascore.com/api/v1/team/${event.homeTeam.id}/image`,
 			score: event.homeScore?.current ?? 0,
+			halfTimeScore: event.homeScore?.period1,
+			colors: {
+				primary: event.homeTeam.teamColors?.primary,
+				secondary: event.homeTeam.teamColors?.secondary,
+				text: event.homeTeam.teamColors?.text,
+			},
 		},
 		awayTeam: {
 			id: event.awayTeam.id,
 			name: event.awayTeam.name,
 			crest: `https://api.sofascore.com/api/v1/team/${event.awayTeam.id}/image`,
 			score: event.awayScore?.current ?? 0,
+			halfTimeScore: event.awayScore?.period1,
+			colors: {
+				primary: event.awayTeam.teamColors?.primary,
+				secondary: event.awayTeam.teamColors?.secondary,
+				text: event.awayTeam.teamColors?.text,
+			},
 		},
 		minute: calculateMinute(event),
 		status: mapStatus(event.status.code),
 		lastUpdated: new Date().toISOString(),
+		tournament: {
+			name: tournamentName,
+			round: event.roundInfo?.name,
+			roundNumber: event.roundInfo?.round,
+		},
+		season: event.season?.name,
 	}
 }
 

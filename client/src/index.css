@@ -1,9 +1,125 @@
 @import "tailwindcss";
 
-/* ─── Custom Fonts ─── */
+@theme {
+    /* ─── Color Palette — Light Broadcast ─── */
+    --color-surface: #f7fafc;
+    --color-surface-dim: #d7dadc;
+    --color-surface-bright: #f7fafc;
+    --color-surface-container-lowest: #ffffff;
+    --color-surface-container-low: #f1f4f6;
+    --color-surface-container: #ebeef0;
+    --color-surface-container-high: #e5e9eb;
+    --color-surface-container-highest: #e0e3e5;
+    --color-on-surface: #181c1e;
+    --color-on-surface-variant: #5e3f3a;
+    --color-inverse-surface: #2d3133;
+    --color-inverse-on-surface: #eef1f3;
+    --color-inverse-primary: #ffb4a8;
+    --color-outline: #926e69;
+    --color-outline-variant: #ffcccc;
+    --color-surface-tint: #cc0000;
+    --color-primary: #cc0000;
+    --color-on-primary: #ffffff;
+    --color-primary-container: #ffdad4;
+    --color-on-primary-container: #930000;
+    --color-primary-fixed: #ffdad4;
+    --color-primary-fixed-dim: #ffb4a8;
+    --color-on-primary-fixed: #410000;
+    --color-on-primary-fixed-variant: #930000;
+    --color-secondary: #515f72;
+    --color-on-secondary: #ffffff;
+    --color-secondary-container: #d2e1f7;
+    --color-on-secondary-container: #556477;
+    --color-secondary-fixed: #d5e4fa;
+    --color-secondary-fixed-dim: #b9c8de;
+    --color-on-secondary-fixed: #0e1c2d;
+    --color-on-secondary-fixed-variant: #3a485a;
+    --color-tertiary: #005a21;
+    --color-on-tertiary: #ffffff;
+    --color-tertiary-container: #00752d;
+    --color-on-tertiary-container: #6cff88;
+    --color-tertiary-fixed: #69ff87;
+    --color-tertiary-fixed-dim: #3ce36a;
+    --color-on-tertiary-fixed: #002108;
+    --color-on-tertiary-fixed-variant: #00531e;
+    --color-error: #ba1a1a;
+    --color-on-error: #ffffff;
+    --color-error-container: #ffdad6;
+    --color-on-error-container: #93000a;
+    --color-background: #f7fafc;
+    --color-on-background: #181c1e;
+    --color-surface-variant: #e0e3e5;
+
+    /* ─── Custom Semantic Colors ─── */
+    --color-live-red: #cc0000;
+    --color-live-dot: #ff4d4d;
+
+    /* ─── Border Radius ─── */
+    --radius-sm: 0.25rem;
+    --radius-default: 0.5rem;
+    --radius-md: 0.75rem;
+    --radius-lg: 1rem;
+    --radius-xl: 1.5rem;
+    --radius-full: 9999px;
+
+    /* ─── Spacing ─── */
+    --spacing-unit: 4px;
+    --spacing-xs: 4px;
+    --spacing-sm: 8px;
+    --spacing-md: 16px;
+    --spacing-gutter: 16px;
+    --spacing-lg: 24px;
+    --spacing-xl: 40px;
+    --spacing-container-max: 1280px;
+
+    /* ─── Font Families ─── */
+    --font-headline: "Hanken Grotesk", sans-serif;
+    --font-body: "Inter", sans-serif;
+    --font-mono: "JetBrains Mono", monospace;
+    --font-score: "Hanken Grotesk", sans-serif;
+
+    /* ─── Font Sizes ─── */
+    --text-score-display: 72px;
+    --text-score-display--line-height: 1;
+    --text-score-display--font-weight: 800;
+    --text-score-display--letter-spacing: -0.03em;
+
+    --text-score-display-mobile: 48px;
+    --text-score-display-mobile--line-height: 1;
+    --text-score-display-mobile--font-weight: 800;
+
+    --text-headline-lg: 32px;
+    --text-headline-lg--line-height: 40px;
+    --text-headline-lg--font-weight: 700;
+
+    --text-headline-md: 24px;
+    --text-headline-md--line-height: 32px;
+    --text-headline-md--font-weight: 600;
+
+    --text-body-lg: 18px;
+    --text-body-lg--line-height: 28px;
+    --text-body-lg--font-weight: 400;
+
+    --text-body-md: 16px;
+    --text-body-md--line-height: 24px;
+    --text-body-md--font-weight: 400;
+
+    --text-timer-label: 20px;
+    --text-timer-label--line-height: 1.5;
+    --text-timer-label--font-weight: 500;
+    --text-timer-label--letter-spacing: -0.02em;
+
+    --text-meta-sm: 12px;
+    --text-meta-sm--line-height: 16px;
+    --text-meta-sm--font-weight: 600;
+    --text-meta-sm--letter-spacing: 0.1em;
+}
+
+/* ─── Base Styles ─── */
 :root {
     --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
-    --font-mono: "JetBrains Mono", ui-monospace, monospace;
+    --font-headline: "Hanken Grotesk", sans-serif;
+    --font-mono: "JetBrains Mono", monospace;
 }
 
 body {
@@ -11,11 +127,22 @@ body {
     font-family: var(--font-sans);
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    background-color: #f7fafc;
+    overflow: hidden;
 }
 
-/* ─── Custom Keyframes ─── */
+/* ─── Keyframes ─── */
 
-/* Score pop when a goal is scored */
+@keyframes pulse-live {
+    0%,
+    100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.5;
+    }
+}
+
 @keyframes score-pop {
     0% {
         transform: scale(1);
@@ -28,7 +155,6 @@ body {
     }
 }
 
-/* Slide up from bottom */
 @keyframes slide-up {
     0% {
         opacity: 0;
@@ -40,7 +166,6 @@ body {
     }
 }
 
-/* Slide up and fade out */
 @keyframes slide-up-out {
     0% {
         opacity: 0;
@@ -60,7 +185,6 @@ body {
     }
 }
 
-/* Slide down from top (goal popup on stream) */
 @keyframes slide-down-in {
     0% {
         opacity: 0;
@@ -83,7 +207,6 @@ body {
     }
 }
 
-/* Fullscreen overlay fade in */
 @keyframes overlay-fade-in {
     0% {
         opacity: 0;
@@ -95,7 +218,6 @@ body {
     }
 }
 
-/* Fulltime popup scale */
 @keyframes popup-scale {
     0% {
         opacity: 0;
@@ -110,7 +232,6 @@ body {
     }
 }
 
-/* Pulse dot for live indicator */
 @keyframes pulse-dot {
     0%,
     100% {
@@ -121,7 +242,6 @@ body {
     }
 }
 
-/* Shimmer for loading state */
 @keyframes shimmer {
     0% {
         background-position: -200% 0;
@@ -131,46 +251,11 @@ body {
     }
 }
 
-/* Glow pulse for the scoreboard */
-@keyframes glow-pulse {
-    0%,
-    100% {
-        box-shadow:
-            0 0 20px rgba(255, 255, 255, 0.05),
-            0 0 40px rgba(59, 130, 246, 0.1);
-    }
-    50% {
-        box-shadow:
-            0 0 30px rgba(255, 255, 255, 0.1),
-            0 0 60px rgba(59, 130, 246, 0.2);
-    }
-}
-
-/* Float animation for waiting state */
-@keyframes float {
-    0%,
-    100% {
-        transform: translateY(0px);
-    }
-    50% {
-        transform: translateY(-10px);
-    }
-}
-
-/* Border shimmer for live indicator */
-@keyframes border-shimmer {
-    0% {
-        border-color: rgba(255, 255, 255, 0.08);
-    }
-    50% {
-        border-color: rgba(59, 130, 246, 0.3);
-    }
-    100% {
-        border-color: rgba(255, 255, 255, 0.08);
-    }
-}
-
 /* ─── Utility Classes ─── */
+
+.animate-pulse-live {
+    animation: pulse-live 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
 
 .animate-score-pop {
     animation: score-pop 0.5s ease-out;
@@ -204,46 +289,59 @@ body {
     animation: pulse-dot 1.5s ease-in-out infinite;
 }
 
-.animate-glow-pulse {
-    animation: glow-pulse 3s ease-in-out infinite;
-}
-
-.animate-float {
-    animation: float 3s ease-in-out infinite;
-}
-
-.animate-border-shimmer {
-    animation: border-shimmer 2s ease-in-out infinite;
-}
-
 .animate-shimmer {
     background: linear-gradient(
         90deg,
         transparent,
-        rgba(255, 255, 255, 0.06),
-        rgba(255, 255, 255, 0.1),
-        rgba(255, 255, 255, 0.06),
+        rgba(0, 0, 0, 0.03),
+        rgba(0, 0, 0, 0.06),
+        rgba(0, 0, 0, 0.03),
         transparent
     );
     background-size: 200% 100%;
     animation: shimmer 2s infinite;
 }
 
-/* ─── Scrollbar Styling ─── */
+/* ─── Broadcast Background ─── */
+.broadcast-bg {
+    background: radial-gradient(circle at center, #ffffff 0%, #f0f4f8 100%);
+}
 
+/* ─── Live Badge ─── */
+.live-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 12px;
+    border-radius: 9999px;
+    background: #cc0000;
+    color: #fff;
+    font-family: "Inter", sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+}
+.live-badge::before {
+    content: "";
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #fff;
+    animation: pulse-dot 1.5s ease-in-out infinite;
+}
+
+/* ─── Scrollbar ─── */
 ::-webkit-scrollbar {
     width: 6px;
 }
-
 ::-webkit-scrollbar-track {
     background: transparent;
 }
-
 ::-webkit-scrollbar-thumb {
-    background: rgba(255, 255, 255, 0.1);
+    background: rgba(0, 0, 0, 0.1);
     border-radius: 3px;
 }
-
 ::-webkit-scrollbar-thumb:hover {
-    background: rgba(255, 255, 255, 0.2);
+    background: rgba(0, 0, 0, 0.2);
 }
