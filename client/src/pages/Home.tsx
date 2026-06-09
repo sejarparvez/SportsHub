@@ -4,7 +4,6 @@ import MatchMinute from "../components/MatchMinute";
 import Scoreboard from "../components/Scoreboard";
 import StatusBadge from "../components/StatusBadge";
 import { useGameState } from "../hooks/useGameState";
-import { Link } from "react-router-dom";
 
 export default function Home() {
 	const { gameState, goalEvent, matchEvent } = useGameState();
@@ -28,44 +27,20 @@ export default function Home() {
 				}}
 			/>
 
-			{/* ─── Top bar — sportcast header ─── */}
-			<div className="absolute top-0 left-0 right-0 z-30 flex items-center justify-between px-6 md:px-10 py-4">
-				{/* Brand */}
-				<div className="flex items-center gap-2">
-					<span className="text-sm font-bold tracking-[0.15em] text-gray-400 font-headline">
-						SPORTSHUB
-					</span>
-				</div>
-
-				{/* Live indicator */}
-				{gameState?.status === "IN_PLAY" && (
-					<div className="live-badge">LIVE</div>
-				)}
-
-				{/* Admin link — glass pill */}
-				<Link
-					to="/admin"
-					className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/80 backdrop-blur-md border border-white/60 shadow-xs text-[11px] font-medium text-gray-400 hover:text-gray-700 hover:bg-white hover:border-gray-300 transition-all duration-200"
-				>
-					<span>⚙️</span>
-					<span>Admin</span>
-				</Link>
-			</div>
-
 			{/* ═══ Main Content ═══ */}
 			<div className="relative flex flex-col items-center gap-4 md:gap-5">
 				{gameState ? (
 					<>
 						{/* Tournament header — broadcast lower-third style */}
 						<div className="flex flex-col items-center gap-1">
-							<div className="text-[10px] md:text-[11px] font-semibold tracking-[0.3em] uppercase font-headline text-gray-400/80">
+							<div className="text-[10px] md:text-[11px] font-semibold tracking-[0.3em] uppercase font-headline text-gray-800">
 								{gameState.tournament
 									? `${gameState.tournament.name}${gameState.tournament.round ? ` • ${gameState.tournament.round}` : ""}`
 									: gameState.season
 										? gameState.season
 										: "International Friendly"}
 							</div>
-							<div className="text-[9px] md:text-[10px] font-mono tracking-wider text-gray-300">
+							<div className="text-[9px] md:text-[10px] font-mono tracking-wider text-gray-700">
 								{new Date().toLocaleDateString("en-GB", {
 									day: "numeric",
 									month: "short",
@@ -125,10 +100,10 @@ export default function Home() {
 
 						{/* Bottom broadcast bar */}
 						<div className="absolute -bottom-12 left-1/2 -translate-x-1/2 whitespace-nowrap">
-							<div className="flex items-center gap-3 text-[9px] text-gray-300 font-mono tracking-[0.3em] uppercase">
-								<span className="w-8 h-px bg-gray-200" />
+							<div className="flex items-center gap-3 text-[9px] text-gray-700 font-mono tracking-[0.3em] uppercase">
+								<span className="w-8 h-px bg-gray-700" />
 								<span>Live Broadcast</span>
-								<span className="w-8 h-px bg-gray-200" />
+								<span className="w-8 h-px bg-gray-700" />
 							</div>
 						</div>
 					</>
