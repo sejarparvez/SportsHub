@@ -128,20 +128,9 @@ body {
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     background-color: #f7fafc;
-    overflow: hidden;
 }
 
 /* ─── Keyframes ─── */
-
-@keyframes pulse-live {
-    0%,
-    100% {
-        opacity: 1;
-    }
-    50% {
-        opacity: 0.5;
-    }
-}
 
 @keyframes score-pop {
     0% {
@@ -163,47 +152,6 @@ body {
     100% {
         opacity: 1;
         transform: translateY(0) scale(1);
-    }
-}
-
-@keyframes slide-up-out {
-    0% {
-        opacity: 0;
-        transform: translateY(20px);
-    }
-    15% {
-        opacity: 1;
-        transform: translateY(0);
-    }
-    85% {
-        opacity: 1;
-        transform: translateY(0);
-    }
-    100% {
-        opacity: 0;
-        transform: translateY(-20px);
-    }
-}
-
-@keyframes slide-down-in {
-    0% {
-        opacity: 0;
-        transform: translateY(-60px) scale(0.9);
-    }
-    100% {
-        opacity: 1;
-        transform: translateY(0) scale(1);
-    }
-}
-
-@keyframes slide-down-out {
-    0% {
-        opacity: 1;
-        transform: translateY(0) scale(1);
-    }
-    100% {
-        opacity: 0;
-        transform: translateY(-60px) scale(0.9);
     }
 }
 
@@ -242,20 +190,7 @@ body {
     }
 }
 
-@keyframes shimmer {
-    0% {
-        background-position: -200% 0;
-    }
-    100% {
-        background-position: 200% 0;
-    }
-}
-
 /* ─── Utility Classes ─── */
-
-.animate-pulse-live {
-    animation: pulse-live 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-}
 
 .animate-score-pop {
     animation: score-pop 0.5s ease-out;
@@ -263,18 +198,6 @@ body {
 
 .animate-slide-up {
     animation: slide-up 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-.animate-slide-up-out {
-    animation: slide-up-out 4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-}
-
-.animate-slide-down-in {
-    animation: slide-down-in 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-}
-
-.animate-slide-down-out {
-    animation: slide-down-out 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
 .animate-overlay-fade-in {
@@ -289,46 +212,9 @@ body {
     animation: pulse-dot 1.5s ease-in-out infinite;
 }
 
-.animate-shimmer {
-    background: linear-gradient(
-        90deg,
-        transparent,
-        rgba(0, 0, 0, 0.03),
-        rgba(0, 0, 0, 0.06),
-        rgba(0, 0, 0, 0.03),
-        transparent
-    );
-    background-size: 200% 100%;
-    animation: shimmer 2s infinite;
-}
-
 /* ─── Broadcast Background ─── */
 .broadcast-bg {
     background: radial-gradient(circle at center, #ffffff 0%, #f0f4f8 100%);
-}
-
-/* ─── Live Badge ─── */
-.live-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    padding: 4px 12px;
-    border-radius: 9999px;
-    background: #cc0000;
-    color: #fff;
-    font-family: "Inter", sans-serif;
-    font-size: 12px;
-    font-weight: 600;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-}
-.live-badge::before {
-    content: "";
-    width: 6px;
-    height: 6px;
-    border-radius: 50%;
-    background: #fff;
-    animation: pulse-dot 1.5s ease-in-out infinite;
 }
 
 /* ─── Scrollbar ─── */

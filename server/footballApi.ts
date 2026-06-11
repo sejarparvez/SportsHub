@@ -1,4 +1,4 @@
-import { execFileSync } from "node:child_process"
+import { execFile } from "node:child_process"
 import type { GameState, MatchStatus, UpcomingMatch } from "../shared/types"
 
 const BASE_URL = "https://api.sofascore.com/api/v1"
@@ -8,34 +8,31 @@ const BASE_URL = "https://api.sofascore.com/api/v1"
 // passes through fine with standard browser-like headers.
 function curlFetch(path: string): Promise<Response> {
 	return new Promise((resolve, reject) => {
-		try {
-			const url = `${BASE_URL}${path}`
-			const args = [
-				"curl",
-				"-s",
-				"--max-time",
-				"10",
-				"-H",
-				"Accept: application/json",
-				"-H",
-				"User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36",
-				"-H",
-				"Referer: https://www.sofascore.com/",
-				url,
-			]
-			const output = execFileSync(args[0], args.slice(1), {
-				encoding: "utf-8",
-				timeout: 10_000,
-			})
+		const url = `${BASE_URL}${path}`
+		const args = [
+			"-s",
+			"--max-time",
+			"10",
+			"-H",
+			"Accept: application/json",
+			"-H",
+			"User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36",
+			"-H",
+			"Referer: https://www.sofascore.com/",
+			url,
+		]
+		execFile("curl", args, { encoding: "utf-8", timeout: 10_000 }, (err, stdout) => {
+			if (err) {
+				reject(new Error(`Sofascore API error: ${err.message}`))
+				return
+			}
 			resolve(
-				new Response(output, {
+				new Response(stdout, {
 					status: 200,
 					headers: { "Content-Type": "application/json" },
 				}),
 			)
-		} catch (err) {
-			reject(new Error(`Sofascore API error: ${err instanceof Error ? err.message : String(err)}`))
-		}
+		})
 	})
 }
 
@@ -160,13 +157,21 @@ function calculateMinute(event: SofascoreEvent): number {
 	const now = Math.floor(Date.now() / 1000)
 	const elapsedMinutes = Math.floor((now - periodStart) / 60)
 
+	const MAX_STOPPAGE = 15
+
 	switch (statusCode) {
 		case 6: // 1st half
 			return Math.min(elapsedMinutes, 45)
-		case 7: // 2nd half
-			return Math.min(45 + elapsedMinutes, 90)
-		case 30: // Extra time
-			return 90 + Math.min(elapsedMinutes, 30)
+		case 7: {
+			// 2nd half
+			const injury = Math.min(event.time?.injuryTime1 ?? 0, MAX_STOPPAGE)
+			return Math.min(45 + elapsedMinutes, 90 + injury)
+		}
+		case 30: {
+			// Extra time
+			const injury = Math.min(event.time?.injuryTime1 ?? 0, MAX_STOPPAGE)
+			return Math.min(90 + elapsedMinutes, 120 + injury)
+		}
 		case 31: // Halftime
 			return 45
 		case 50: // Penalties
@@ -226,7 +231,7 @@ export function toGoalScorers(
 			isHome: i.isHome,
 			assist: i.assist1?.name,
 			isOwnGoal: i.goalType === "own-goal",
-			isPenalty: i.goalType === "penality",
+			isPenalty: i.goalType === "penalty",
 		}))
 }
 

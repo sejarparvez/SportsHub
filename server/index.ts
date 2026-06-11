@@ -180,8 +180,8 @@ app.post("/api/match/goal", (req, res) => {
 
 app.post("/api/match/set-minute", (req, res) => {
 	const { minute } = req.body as { minute: number }
-	if (typeof minute !== "number" || minute < 0) {
-		res.status(400).json({ error: "minute must be a positive number" })
+	if (typeof minute !== "number" || !Number.isInteger(minute) || minute < 0) {
+		res.status(400).json({ error: "minute must be a positive integer" })
 		return
 	}
 
@@ -253,6 +253,7 @@ app.use((_req, res) => {
 
 let pollTimer: ReturnType<typeof setTimeout> | null = null
 let isPolling = false
+let currentGen = 0
 
 function getInterval(status: string): number {
 	// For SCHEDULED/TIMED matches, use auto-detect interval to catch kickoff quickly
@@ -264,51 +265,62 @@ function getInterval(status: string): number {
 
 function startPolling(matchId: number): void {
 	stopPolling()
+	const gen = currentGen
 
 	const poll = async () => {
-		if (isPolling) return // Guard against overlapping calls
+		if (isPolling) return
 		isPolling = true
 
 		try {
 			const match = await fetchMatch(matchId)
+			if (gen !== currentGen) return // Stale — discard
 			const newState = toGameState(match)
 			const oldState = getState()
 
 			// Preserve goal timeline from initial fetch (not re-fetched during polling)
 			newState.goals = oldState.goals
 
-			// Match just started (SCHEDULED → IN_PLAY)
-			if (
+			// Detect all events before any broadcast
+			const justStarted =
 				newState.status === "IN_PLAY" &&
 				(oldState.status === "SCHEDULED" || oldState.status === "TIMED")
-			) {
-				setState(newState)
-				broadcast("match:started", newState)
-				broadcast("state:update", newState)
-				// Schedule next poll — will continue with normal IN_PLAY interval
-			} else if (newState.status === "FINISHED" || newState.status === "AWARDED") {
-				setState(newState)
-				broadcast("match:fulltime", newState)
-				broadcast("state:update", newState)
-				stopPolling()
-				return
-			}
 
-			// Halftime detected
-			if (newState.status === "PAUSED" && oldState.status === "IN_PLAY") {
-				setState(newState)
-				broadcast("match:halftime", newState)
-				broadcast("state:update", newState)
-			} else if (
+			const justFinished = newState.status === "FINISHED" || newState.status === "AWARDED"
+
+			const justHalftime = newState.status === "PAUSED" && oldState.status === "IN_PLAY"
+
+			const scoreChanged =
 				newState.homeTeam.score !== oldState.homeTeam.score ||
 				newState.awayTeam.score !== oldState.awayTeam.score
-			) {
-				setState(newState)
+
+			const stateChanged =
+				newState.minute !== oldState.minute || newState.status !== oldState.status
+
+			// Apply state once
+			setState(newState)
+
+			// Broadcast event-specific messages (may fire multiple)
+			if (justStarted) {
+				broadcast("match:started", newState)
+			}
+			if (justHalftime) {
+				broadcast("match:halftime", newState)
+			}
+			if (scoreChanged) {
 				broadcast("match:goal", newState)
+			}
+			if (justFinished) {
+				broadcast("match:fulltime", newState)
+				stopPolling()
+			}
+
+			// Broadcast state update once
+			if (justStarted || justHalftime || scoreChanged || stateChanged || justFinished) {
 				broadcast("state:update", newState)
-			} else if (newState.minute !== oldState.minute || newState.status !== oldState.status) {
-				setState(newState)
-				broadcast("state:update", newState)
+			}
+
+			if (justFinished) {
+				return
 			}
 
 			// Schedule next poll with appropriate interval
@@ -330,6 +342,7 @@ function startPolling(matchId: number): void {
 }
 
 function stopPolling(): void {
+	currentGen++
 	isPolling = false
 	if (pollTimer) {
 		clearTimeout(pollTimer)

@@ -55,10 +55,9 @@ Here's the complete workflow from a fresh machine to a live score on Facebook:
 ┌─ Step 3 ──────────────────────┐
 │  Configure (see .env)          │
 │  ┌─────────────────────────┐   │
-│  │ Have API key?           │   │
-│  │   → echo "KEY=..." > .env│  │
-│  │ No API key?             │   │
-│  │   → Create manual match │   │
+│  │ Optional: set PORT      │   │
+│  │   → echo "PORT=3000" > .env│  │
+│  │ Defaults to 3000        │   │
 │  └─────────────────────────┘   │
 └──────────────┬─────────────────┘
                ↓
@@ -77,14 +76,12 @@ Here's the complete workflow from a fresh machine to a live score on Facebook:
 ┌─ Step 6 ──────────────────────┐
 │  Pick or create a match        │
 │  ┌──────────────────────────┐  │
-│  │ Have API key?            │  │
-│  │  → Click "Track" on any  │  │
-│  │    live or upcoming match│  │
+│  │  Click "Track" on any    │  │
+│  │  live or upcoming match  │  │
 │  ├──────────────────────────┤  │
-│  │ No API key?              │  │
-│  │  → Open "Manual Match"   │  │
-│  │    section, enter teams, │  │
-│  │    click "Create Match"  │  │
+│  │  Or: open "Manual Match" │  │
+│  │  section, enter teams,   │  │
+│  │  click "Create Match"    │  │
 │  └──────────────────────────┘  │
 └──────────────┬─────────────────┘
                ↓
@@ -98,7 +95,7 @@ Here's the complete workflow from a fresh machine to a live score on Facebook:
                ↓
 ┌─ Step 8 ──────────────────────┐
 │  Open Overlay in OBS           │
-│  http://localhost:3000/overlay │
+│  http://localhost:3000         │
 │  1920×1080, Browser Source     │
 └──────────────┬─────────────────┘
                ↓
@@ -115,7 +112,6 @@ Here's the complete workflow from a fresh machine to a live score on Facebook:
 ### Prerequisites
 
 - [Bun](https://bun.sh) ≥ 1.2
-- A free API key from [Football-Data.org](https://www.football-data.org) _(optional — manual mode works without it)_
 
 ### Setup
 
@@ -126,9 +122,8 @@ cd SportsHub
 bun install
 cd client && bun install && cd ..
 
-# 2. Set your API key (skip this for manual-only mode)
-echo "FOOTBALL_DATA_API_KEY=your_key_here" > .env
-echo "PORT=3000" >> .env
+# 2. (Optional) Set the port
+echo "PORT=3000" > .env
 ```
 
 ### Development (two terminals)
@@ -145,8 +140,8 @@ Then open:
 
 | Page            | URL                             | Purpose                                           |
 | --------------- | ------------------------------- | ------------------------------------------------- |
-| **Admin Panel** | `http://localhost:5173/admin`   | Select matches, control scores, manage presets    |
-| **Overlay**     | `http://localhost:5173/overlay` | The score broadcast — this is what goes on stream |
+| **Admin Panel** | `http://localhost:5173/admin` | Select matches, control scores, manage presets      |
+| **Overlay**     | `http://localhost:5173`       | The score broadcast — this is what goes on stream   |
 
 ### Production
 
@@ -158,7 +153,7 @@ bun run build
 bun start
 ```
 
-Production URLs: `http://localhost:3000/admin` and `http://localhost:3000/overlay`
+Production URLs: `http://localhost:3000/admin` and `http://localhost:3000`
 
 ---
 
@@ -168,7 +163,7 @@ The admin dashboard is your command center. Here's every section explained:
 
 ### Live Matches (Left Column)
 
-Shows currently live matches from Football-Data.org.
+Shows currently live matches from Sofascore's public API (no key needed).
 
 ```
 ┌─ Live Matches ────────────────────────────────────┐
@@ -308,7 +303,7 @@ The server now serves everything on `http://localhost:3000`.
 | Setting                                   | Value                           |
 | ----------------------------------------- | ------------------------------- |
 | Source type                               | **Browser Source**              |
-| URL                                       | `http://localhost:3000/overlay` |
+| URL                                       | `http://localhost:3000`         |
 | Width                                     | **1920**                        |
 | Height                                    | **1080**                        |
 | Control audio via OBS                     | As needed                       |
@@ -394,12 +389,12 @@ The overlay is a full-screen 1920×1080 broadcast graphic. It is NOT a transpare
 ## 🏗️ Architecture
 
 ```
-Football-Data.org API (optional)
+Sofascore Public API (no key needed)
         ↓
 Bun + Express Server (localhost:3000)
-  — polls API at smart intervals (60s in play, 5min scheduled)
+  — polls Sofascore at smart intervals (60s in play, 5min scheduled)
   — detects state changes (goal, halftime, fulltime, kickoff)
-  — supports manual match creation (no API key needed)
+  — supports manual match creation (no API calls needed)
   — pushes events via SSE with 30s keepalive heartbeat
         ↓
 SSE (/api/events)          REST (/api/*)
@@ -408,7 +403,7 @@ SSE (/api/events)          REST (/api/*)
         ↓                            ↓
 React Client (Vite)
   ┌──────────────┐    ┌──────────────┐
-  │  /overlay     │    │  /admin      │
+  │  /            │    │  /admin      │
   │  Broadcast    │    │  Dashboard   │
   └──────────────┘    └──────────────┘
         ↓
@@ -423,23 +418,24 @@ SportsHub/
 │   ├── index.ts          # Express server, REST routes, SSE, polling
 │   ├── sse.ts            # SSE client manager + keepalive heartbeat
 │   ├── gameState.ts      # In-memory game state singleton
-│   ├── footballApi.ts    # Football-Data.org API client
+│   ├── footballApi.ts    # Sofascore API client (via curl)
 │   └── constants.ts      # Poll intervals, SSE keepalive, auto-detect interval
 ├── client/
 │   ├── src/
 │   │   ├── pages/
-│   │   │   ├── Overlay.tsx        # Full-screen score broadcast graphic
+│   │   │   ├── Home.tsx           # Full-screen score broadcast graphic (/)
 │   │   │   └── Admin.tsx          # Dashboard with controls, presets, live preview
 │   │   ├── components/
 │   │   │   ├── Scoreboard.tsx     # Glass card with glow scores, team crests
 │   │   │   ├── MatchMinute.tsx    # Live match clock with pulsing dot
 │   │   │   ├── StatusBadge.tsx    # Gradient pill badges with live dot
 │   │   │   ├── EventPopup.tsx     # Goal/HT/FT/kickoff centered scale-in popups
+│   │   │   ├── GoalScorers.tsx   # Goal scorer timeline split by home/away
 │   │   │   ├── TeamBadge.tsx      # Crest image or auto-generated gradient initials
 │   │   │   └── LivePreview.tsx    # Admin panel overlay preview + state summary
 │   │   ├── hooks/
 │   │   │   └── useGameState.ts    # SSE connection + timeout management
-│   │   ├── App.tsx                # React Router (/overlay, /admin)
+│   │   ├── App.tsx                # React Router (/, /admin)
 │   │   ├── index.css              # Tailwind + custom animations
 │   │   └── main.tsx               # Entry point
 │   ├── index.html                 # Google Fonts (Inter, JetBrains Mono)
@@ -447,10 +443,10 @@ SportsHub/
 ├── shared/
 │   └── types.ts            # GameState, Team, UpcomingMatch, GoalEventData, etc.
 ├── doc/
-│   └── PLAN.md             # Detailed project plan
+│   └── AUDIT.md            # Code audit & improvement plan
 ├── biome.json              # Biome linter + formatter config
 ├── .gitignore              # node_modules, dist, .env
-├── .env                    # FOOTBALL_DATA_API_KEY, PORT — gitignored
+├── .env                    # PORT — gitignored
 ├── README.md               # This file
 └── package.json
 ```
@@ -479,9 +475,9 @@ SportsHub/
 ```json
 {
   "homeTeamName": "Arsenal",
-  "homeTeamCrest": "https://crests.football-data.org/57.png",
+  "homeTeamCrest": "https://example.com/arsenal-crest.png",
   "awayTeamName": "Chelsea",
-  "awayTeamCrest": "https://crests.football-data.org/61.png",
+  "awayTeamCrest": "https://example.com/chelsea-crest.png",
   "homeScore": 2,
   "awayScore": 1,
   "status": "IN_PLAY",
@@ -534,22 +530,21 @@ Clients receive `state:init` immediately on connect, then real-time typed events
 
 ## ⚙️ Environment Variables (`.env`)
 
-| Variable                | Default | Required                          | Description                |
-| ----------------------- | ------- | --------------------------------- | -------------------------- |
-| `FOOTBALL_DATA_API_KEY` | —       | ❌ (manual mode works without it) | Your football-data.org key |
-| `PORT`                  | `3000`  | ❌                                | Server listen port         |
+| Variable | Default | Required | Description        |
+| -------- | ------- | -------- | ------------------ |
+| `PORT`   | `3000`  | ❌       | Server listen port |
 
 ---
 
 ## 💰 Cost
 
-| Service                       | Cost   |
-| ----------------------------- | ------ |
-| Football-Data.org (free tier) | $0     |
-| Bun + Express + Vite + OBS    | $0     |
-| **Total**                     | **$0** |
+| Service                    | Cost   |
+| -------------------------- | ------ |
+| Sofascore (public API)     | $0     |
+| Bun + Express + Vite + OBS | $0     |
+| **Total**                  | **$0** |
 
-Football-Data.org free tier: **10 requests/min, 600 req/hour** — more than enough for live match tracking. Manual mode uses zero API calls.
+Sofascore's public API requires no key, no rate limiting for this use case. Manual mode uses zero external API calls.
 
 ---
 
@@ -557,7 +552,7 @@ Football-Data.org free tier: **10 requests/min, 600 req/hour** — more than eno
 
 - **API failures** — Server keeps last known state, logs error, retries after 30s
 - **SSE disconnects** — `EventSource` auto-reconnects natively
-- **Missing API key** — Server logs clear error at startup; manual mode still works fine
+- **Sofascore blocking** — Server falls back to last known state, logs error, retries
 - **Invalid match ID** — Admin panel shows error toast
 - **Network errors** — All fetch calls wrapped in try/catch with toast feedback
 - **Type safety** — Shared TypeScript types guarantee server/client agreement across the stack

@@ -1,5 +1,5 @@
 import type { GameState } from "@shared/types";
-import { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import TeamBadge from "./TeamBadge";
 
 interface Props {
@@ -7,7 +7,8 @@ interface Props {
 	light?: boolean;
 }
 
-export default function Scoreboard({ state, light }: Props) {
+const Scoreboard = React.memo(
+function Scoreboard({ state, light }: Props) {
 	const [scorePop, setScorePop] = useState<"home" | "away" | null>(null);
 	const prevScoresRef = useRef({
 		home: state.homeTeam.score,
@@ -110,4 +111,17 @@ export default function Scoreboard({ state, light }: Props) {
 			</div>
 		</div>
 	);
-}
+},
+(prev: Props, next: Props) =>
+	prev.light === next.light &&
+	prev.state.homeTeam.score === next.state.homeTeam.score &&
+	prev.state.awayTeam.score === next.state.awayTeam.score &&
+	prev.state.homeTeam.name === next.state.homeTeam.name &&
+	prev.state.awayTeam.name === next.state.awayTeam.name &&
+	prev.state.homeTeam.crest === next.state.homeTeam.crest &&
+	prev.state.awayTeam.crest === next.state.awayTeam.crest &&
+	prev.state.homeTeam.halfTimeScore === next.state.homeTeam.halfTimeScore &&
+	prev.state.awayTeam.halfTimeScore === next.state.awayTeam.halfTimeScore
+);
+
+export default Scoreboard;

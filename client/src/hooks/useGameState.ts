@@ -4,6 +4,11 @@ import { useCallback, useEffect, useRef, useState } from "react";
 const GOAL_POPUP_DURATION = 5000;
 const HALFTIME_POPUP_DURATION = 5000;
 
+function parseSSEData(data: string) {
+  try { return JSON.parse(data) as GameState }
+  catch { console.error("SSE parse error:", data); return null }
+}
+
 export function useGameState() {
 	const [gameState, setGameState] = useState<GameState | null>(null);
 	const [goalEvent, setGoalEvent] = useState<GoalEventData | null>(null);
@@ -33,17 +38,20 @@ export function useGameState() {
 		es.onopen = () => setConnected(true);
 
 		es.addEventListener("state:init", (e: MessageEvent) => {
-			const data = JSON.parse(e.data) as GameState;
+			const data = parseSSEData(e.data);
+			if (!data) return;
 			setGameState(data);
 		});
 
 		es.addEventListener("state:update", (e: MessageEvent) => {
-			const data = JSON.parse(e.data) as GameState;
+			const data = parseSSEData(e.data);
+			if (!data) return;
 			setGameState(data);
 		});
 
 		es.addEventListener("match:goal", (e: MessageEvent) => {
-			const data = JSON.parse(e.data) as GameState;
+			const data = parseSSEData(e.data);
+			if (!data) return;
 			setGameState(data);
 			clearGoalTimer();
 			setGoalEvent({ matchId: data.matchId!, minute: data.minute });
@@ -54,13 +62,15 @@ export function useGameState() {
 		});
 
 		es.addEventListener("match:started", (e: MessageEvent) => {
-			const data = JSON.parse(e.data) as GameState;
+			const data = parseSSEData(e.data);
+			if (!data) return;
 			setGameState(data);
 			setMatchEvent("started");
 		});
 
 		es.addEventListener("match:halftime", (e: MessageEvent) => {
-			const data = JSON.parse(e.data) as GameState;
+			const data = parseSSEData(e.data);
+			if (!data) return;
 			setGameState(data);
 			clearHalftimeTimer();
 			setMatchEvent("halftime");
@@ -71,7 +81,8 @@ export function useGameState() {
 		});
 
 		es.addEventListener("match:fulltime", (e: MessageEvent) => {
-			const data = JSON.parse(e.data) as GameState;
+			const data = parseSSEData(e.data);
+			if (!data) return;
 			setGameState(data);
 			setMatchEvent("fulltime");
 		});

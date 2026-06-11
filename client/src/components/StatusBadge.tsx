@@ -16,6 +16,21 @@ const labels: Record<MatchStatus, string> = {
 	AWARDED: "FT",
 };
 
+const lightStyles: Record<MatchStatus, string> = {
+	SCHEDULED: "bg-gray-100 text-gray-500 border-gray-200",
+	TIMED: "bg-gray-100 text-gray-500 border-gray-200",
+	IN_PLAY:
+		"bg-gradient-to-r from-red-500 to-rose-500 text-white border-red-400/50 shadow-sm shadow-red-500/20",
+	PAUSED:
+		"bg-gradient-to-r from-amber-500 to-yellow-500 text-white border-amber-400/50",
+	FINISHED: "bg-gray-200 text-gray-600 border-gray-300",
+	EXTRA_TIME:
+		"bg-gradient-to-r from-orange-500 to-red-500 text-white border-orange-400/50",
+	PENALTY_SHOOTOUT:
+		"bg-gradient-to-r from-purple-500 to-pink-500 text-white border-purple-400/50",
+	AWARDED: "bg-gray-200 text-gray-600 border-gray-300",
+};
+
 const styles: Record<MatchStatus, string> = {
 	SCHEDULED: "bg-gray-500/30 text-gray-300 border-gray-500/40",
 	TIMED: "bg-gray-500/30 text-gray-300 border-gray-500/40",
@@ -32,21 +47,6 @@ const styles: Record<MatchStatus, string> = {
 };
 
 export default function StatusBadge({ status, light }: Props) {
-	const lightStyles: Record<MatchStatus, string> = {
-		SCHEDULED: "bg-gray-100 text-gray-500 border-gray-200",
-		TIMED: "bg-gray-100 text-gray-500 border-gray-200",
-		IN_PLAY:
-			"bg-gradient-to-r from-red-500 to-rose-500 text-white border-red-400/50 shadow-sm shadow-red-500/20",
-		PAUSED:
-			"bg-gradient-to-r from-amber-500 to-yellow-500 text-white border-amber-400/50",
-		FINISHED: "bg-gray-200 text-gray-600 border-gray-300",
-		EXTRA_TIME:
-			"bg-gradient-to-r from-orange-500 to-red-500 text-white border-orange-400/50",
-		PENALTY_SHOOTOUT:
-			"bg-gradient-to-r from-purple-500 to-pink-500 text-white border-purple-400/50",
-		AWARDED: "bg-gray-200 text-gray-600 border-gray-300",
-	};
-
 	return (
 			<span
 				className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-sm font-bold border ${light ? lightStyles[status] : styles[status]}`}

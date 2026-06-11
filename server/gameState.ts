@@ -12,11 +12,17 @@ const defaultState: GameState = {
 let state: GameState = { ...defaultState }
 
 export function getState(): GameState {
-	return state
+	return { ...state }
 }
 
 export function setState(update: Partial<GameState>): GameState {
-	state = { ...state, ...update, lastUpdated: new Date().toISOString() }
+	state = {
+		...state,
+		...update,
+		homeTeam: update.homeTeam ? { ...state.homeTeam, ...update.homeTeam } : state.homeTeam,
+		awayTeam: update.awayTeam ? { ...state.awayTeam, ...update.awayTeam } : state.awayTeam,
+		lastUpdated: new Date().toISOString(),
+	}
 	return state
 }
 

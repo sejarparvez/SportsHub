@@ -1,3 +1,5 @@
+import { useEffect, useState } from "react";
+
 interface Props {
 	name: string;
 	crest: string;
@@ -38,8 +40,10 @@ function teamInitials(name: string): string {
 
 export default function TeamBadge({ name, crest, size = "md", light }: Props) {
 	const s = sizeMap[size];
+	const [imgFailed, setImgFailed] = useState(false);
+	useEffect(() => { setImgFailed(false) }, [crest]);
 
-	if (crest) {
+	if (crest && !imgFailed) {
 		return (
 			<div
 				className={`${s.wrapper} rounded-full ${light ? "bg-white/60" : "bg-white/10"} backdrop-blur-sm flex items-center justify-center p-1.5 ring-2 ${light ? "ring-black/10" : "ring-white/20"}`}
@@ -49,6 +53,7 @@ export default function TeamBadge({ name, crest, size = "md", light }: Props) {
 					alt={name}
 					className="w-full h-full object-contain"
 					loading="lazy"
+					onError={() => setImgFailed(true)}
 				/>
 			</div>
 		);
