@@ -5,7 +5,13 @@ interface Props {
 	matchEvent: MatchEventType | null;
 }
 
+const TEAM_LABELS: Record<string, string> = {
+	home: "Home",
+	away: "Away",
+};
+
 function GoalPopup({ data }: { data: GoalEventData }) {
+	const teamLabel = data.team ? TEAM_LABELS[data.team] : "A team";
 	return (
 		<div className="fixed inset-0 flex items-center justify-center z-50 pointer-events-none select-none">
 			<div className="animate-popup-scale bg-linear-to-r from-yellow-400 via-yellow-500 to-amber-500 text-black px-14 py-7 rounded-3xl shadow-2xl shadow-yellow-500/50 border border-yellow-300/60">
@@ -14,7 +20,7 @@ function GoalPopup({ data }: { data: GoalEventData }) {
 					<div className="text-left">
 						<p className="text-5xl font-black tracking-tight">GOAL!</p>
 						<p className="text-lg font-semibold opacity-80">
-							{data.minute}&apos; — A goal has been scored!
+							{data.minute}&apos; — {data.playerName ? `${data.playerName} — ` : ""}{teamLabel} team scored!
 						</p>
 					</div>
 				</div>
@@ -59,9 +65,12 @@ function MatchStartedPopup() {
 	);
 }
 
-function FulltimePopup() {
+function FulltimePopup({ onDismiss }: { onDismiss: () => void }) {
 	return (
-		<div className="fixed inset-0 flex items-center justify-center z-50 animate-overlay-fade-in bg-white/60 backdrop-blur-sm pointer-events-none select-none">
+		<div
+			className="fixed inset-0 flex items-center justify-center z-50 animate-overlay-fade-in bg-white/60 backdrop-blur-sm cursor-pointer select-none"
+			onClick={onDismiss}
+		>
 			<div className="animate-popup-scale bg-white/90 backdrop-blur-2xl text-gray-900 px-20 py-12 rounded-3xl shadow-2xl shadow-black/10 border border-white/60">
 				<div className="flex flex-col items-center gap-4">
 					<span className="text-7xl">🏁</span>
@@ -69,6 +78,7 @@ function FulltimePopup() {
 					<p className="text-xl font-medium text-gray-500">
 						The match has ended
 					</p>
+					<p className="text-sm text-gray-400 mt-2">Click anywhere to dismiss</p>
 				</div>
 			</div>
 		</div>
@@ -76,7 +86,7 @@ function FulltimePopup() {
 }
 
 export default function EventPopup({ goalEvent, matchEvent }: Props) {
-	if (matchEvent === "fulltime") return <FulltimePopup />;
+	if (matchEvent === "fulltime") return <FulltimePopup onDismiss={() => {}} />;
 	if (matchEvent === "halftime") return <HalftimePopup />;
 	if (matchEvent === "started") return <MatchStartedPopup />;
 	if (goalEvent) return <GoalPopup data={goalEvent} />;

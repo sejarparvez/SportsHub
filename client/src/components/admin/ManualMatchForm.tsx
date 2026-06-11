@@ -40,6 +40,7 @@ export default function ManualMatchForm({ addToast, onMatchCreated }: Props) {
 	const [presets, setPresets] = useState<Preset[]>(loadPresets);
 	const [presetName, setPresetName] = useState("");
 	const [selectedPreset, setSelectedPreset] = useState("");
+	const [creating, setCreating] = useState(false);
 
 	const updateForm = (field: string, value: string) => {
 		setForm((prev) => ({ ...prev, [field]: value }));
@@ -87,6 +88,7 @@ export default function ManualMatchForm({ addToast, onMatchCreated }: Props) {
 	};
 
 	const createMatch = async () => {
+		setCreating(true);
 		try {
 			const res = await fetch("/api/match/create", {
 				method: "POST",
@@ -112,6 +114,8 @@ export default function ManualMatchForm({ addToast, onMatchCreated }: Props) {
 			}
 		} catch {
 			addToast("Network error creating match", "error");
+		} finally {
+			setCreating(false);
 		}
 	};
 
@@ -120,6 +124,7 @@ export default function ManualMatchForm({ addToast, onMatchCreated }: Props) {
 			<button
 				type="button"
 				onClick={() => setShowForm(!showForm)}
+				aria-label="Toggle match creation form"
 				className="w-full bg-linear-to-r from-indigo-500 to-blue-600 hover:from-indigo-400 hover:to-blue-500 active:from-indigo-300 active:to-blue-400 disabled:from-gray-300 disabled:to-gray-300 disabled:cursor-not-allowed text-white font-bold px-4 py-2.5 rounded-xl transition-all duration-150 active:scale-[0.98] text-sm hover:shadow-lg hover:shadow-indigo-500/20 flex items-center justify-center gap-2"
 			>
 				<span>{showForm ? "−" : "+"}</span>
@@ -137,7 +142,7 @@ export default function ManualMatchForm({ addToast, onMatchCreated }: Props) {
 
 					<div className="grid grid-cols-2 gap-3">
 						<div>
-							<label className="block text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-1.5">
+							<label className="block text-[10px] font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-1.5">
 								Home Team
 							</label>
 							<input
@@ -145,11 +150,12 @@ export default function ManualMatchForm({ addToast, onMatchCreated }: Props) {
 								placeholder="e.g. Arsenal"
 								value={form.homeTeamName}
 								onChange={(e) => updateForm("homeTeamName", e.target.value)}
-								className="w-full bg-white border border-gray-200 rounded-lg px-3 py-2 text-gray-900 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400/20 focus:border-blue-400 transition-all placeholder:text-gray-400"
+								aria-label="Home team name"
+								className="w-full bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-lg px-3 py-2 text-gray-900 dark:text-gray-100 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400/20 focus:border-blue-400 transition-all placeholder:text-gray-400 dark:placeholder-gray-500"
 							/>
 						</div>
 						<div>
-							<label className="block text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-1.5">
+							<label className="block text-[10px] font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-1.5">
 								Away Team
 							</label>
 							<input
@@ -157,41 +163,44 @@ export default function ManualMatchForm({ addToast, onMatchCreated }: Props) {
 								placeholder="e.g. Chelsea"
 								value={form.awayTeamName}
 								onChange={(e) => updateForm("awayTeamName", e.target.value)}
-								className="w-full bg-white border border-gray-200 rounded-lg px-3 py-2 text-gray-900 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400/20 focus:border-blue-400 transition-all placeholder:text-gray-400"
+								aria-label="Away team name"
+								className="w-full bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-lg px-3 py-2 text-gray-900 dark:text-gray-100 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400/20 focus:border-blue-400 transition-all placeholder:text-gray-400 dark:placeholder-gray-500"
 							/>
 						</div>
 					</div>
 
 					<div className="grid grid-cols-2 gap-3">
 						<div>
-							<label className="block text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-1.5">
-								Home Crest <span className="text-gray-300 font-normal normal-case">(opt)</span>
+							<label className="block text-[10px] font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-1.5">
+								Home Crest <span className="text-gray-300 dark:text-gray-600 font-normal normal-case">(opt)</span>
 							</label>
-							<input
+<input
 								type="text"
 								placeholder="https://..."
 								value={form.homeTeamCrest}
 								onChange={(e) => updateForm("homeTeamCrest", e.target.value)}
-								className="w-full bg-white border border-gray-200 rounded-lg px-3 py-2 text-gray-900 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400/20 focus:border-blue-400 transition-all placeholder:text-gray-400 font-mono"
+								aria-label="Home team crest URL"
+								className="w-full bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-lg px-3 py-2 text-gray-900 dark:text-gray-100 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400/20 focus:border-blue-400 transition-all placeholder:text-gray-400 dark:placeholder-gray-500 font-mono"
 							/>
 						</div>
 						<div>
-							<label className="block text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-1.5">
-								Away Crest <span className="text-gray-300 font-normal normal-case">(opt)</span>
+							<label className="block text-[10px] font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-1.5">
+								Away Crest <span className="text-gray-300 dark:text-gray-600 font-normal normal-case">(opt)</span>
 							</label>
-							<input
+<input
 								type="text"
 								placeholder="https://..."
 								value={form.awayTeamCrest}
 								onChange={(e) => updateForm("awayTeamCrest", e.target.value)}
-								className="w-full bg-white border border-gray-200 rounded-lg px-3 py-2 text-gray-900 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400/20 focus:border-blue-400 transition-all placeholder:text-gray-400 font-mono"
+								aria-label="Away team crest URL"
+								className="w-full bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-lg px-3 py-2 text-gray-900 dark:text-gray-100 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400/20 focus:border-blue-400 transition-all placeholder:text-gray-400 dark:placeholder-gray-500 font-mono"
 							/>
 						</div>
 					</div>
 
 					<div className="grid grid-cols-3 gap-3">
 						<div>
-							<label className="block text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-1.5">
+							<label className="block text-[10px] font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-1.5">
 								Home Score
 							</label>
 							<input
@@ -199,11 +208,12 @@ export default function ManualMatchForm({ addToast, onMatchCreated }: Props) {
 								min="0"
 								value={form.homeScore}
 								onChange={(e) => updateForm("homeScore", e.target.value)}
-								className="w-full bg-white border border-gray-200 rounded-lg px-3 py-2 text-gray-900 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400/20 focus:border-blue-400 transition-all placeholder:text-gray-400"
+								aria-label="Home team initial score"
+								className="w-full bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-lg px-3 py-2 text-gray-900 dark:text-gray-100 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400/20 focus:border-blue-400 transition-all placeholder:text-gray-400 dark:placeholder-gray-500"
 							/>
 						</div>
 						<div>
-							<label className="block text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-1.5">
+							<label className="block text-[10px] font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-1.5">
 								Away Score
 							</label>
 							<input
@@ -211,11 +221,12 @@ export default function ManualMatchForm({ addToast, onMatchCreated }: Props) {
 								min="0"
 								value={form.awayScore}
 								onChange={(e) => updateForm("awayScore", e.target.value)}
-								className="w-full bg-white border border-gray-200 rounded-lg px-3 py-2 text-gray-900 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400/20 focus:border-blue-400 transition-all placeholder:text-gray-400"
+								aria-label="Away team initial score"
+								className="w-full bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-lg px-3 py-2 text-gray-900 dark:text-gray-100 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400/20 focus:border-blue-400 transition-all placeholder:text-gray-400 dark:placeholder-gray-500"
 							/>
 						</div>
 						<div>
-							<label className="block text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-1.5">
+							<label className="block text-[10px] font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-1.5">
 								Minute
 							</label>
 							<input
@@ -224,19 +235,21 @@ export default function ManualMatchForm({ addToast, onMatchCreated }: Props) {
 								max="120"
 								value={form.minute}
 								onChange={(e) => updateForm("minute", e.target.value)}
-								className="w-full bg-white border border-gray-200 rounded-lg px-3 py-2 text-gray-900 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400/20 focus:border-blue-400 transition-all placeholder:text-gray-400"
+								aria-label="Initial match minute"
+								className="w-full bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-lg px-3 py-2 text-gray-900 dark:text-gray-100 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400/20 focus:border-blue-400 transition-all placeholder:text-gray-400 dark:placeholder-gray-500"
 							/>
 						</div>
 					</div>
 
 					<div>
-						<label className="block text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-1.5">
+						<label className="block text-[10px] font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-1.5">
 							Status
 						</label>
 						<select
 							value={form.status}
 							onChange={(e) => updateForm("status", e.target.value)}
-							className="w-full bg-white border border-gray-200 rounded-lg px-3 py-2 text-gray-900 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400/20 focus:border-blue-400 transition-all appearance-none cursor-pointer"
+							aria-label="Initial match status"
+							className="w-full bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-lg px-3 py-2 text-gray-900 dark:text-gray-100 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400/20 focus:border-blue-400 transition-all appearance-none cursor-pointer"
 						>
 							<option value="SCHEDULED">SCHEDULED</option>
 							<option value="TIMED">TIMED</option>
@@ -252,10 +265,18 @@ export default function ManualMatchForm({ addToast, onMatchCreated }: Props) {
 						<button
 							type="button"
 							onClick={createMatch}
-							disabled={!form.homeTeamName || !form.awayTeamName}
-							className="w-full bg-linear-to-r from-indigo-500 to-blue-600 hover:from-indigo-400 hover:to-blue-500 active:from-indigo-300 active:to-blue-400 disabled:from-gray-300 disabled:to-gray-300 disabled:cursor-not-allowed text-white font-bold px-4 py-2.5 rounded-xl transition-all duration-150 active:scale-[0.98] text-sm hover:shadow-lg hover:shadow-indigo-500/20"
+							disabled={!form.homeTeamName || !form.awayTeamName || creating}
+							aria-label="Create match"
+							className="w-full bg-linear-to-r from-indigo-500 to-blue-600 hover:from-indigo-400 hover:to-blue-500 active:from-indigo-300 active:to-blue-400 disabled:from-gray-300 disabled:to-gray-300 disabled:cursor-not-allowed text-white font-bold px-4 py-2.5 rounded-xl transition-all duration-150 active:scale-[0.98] text-sm hover:shadow-lg hover:shadow-indigo-500/20 flex items-center justify-center gap-2"
 						>
-							Create Match
+							{creating ? (
+								<>
+									<span className="w-4 h-4 rounded-full border-2 border-white/30 border-t-white animate-spin" />
+									Creating...
+								</>
+							) : (
+								"Create Match"
+							)}
 						</button>
 
 						{form.homeTeamName && form.awayTeamName && (
@@ -265,11 +286,13 @@ export default function ManualMatchForm({ addToast, onMatchCreated }: Props) {
 									placeholder="Preset name (optional)"
 									value={presetName}
 									onChange={(e) => setPresetName(e.target.value)}
-									className="flex-1 bg-white border border-gray-200 rounded-lg px-3 py-2 text-gray-900 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400/20 focus:border-indigo-400 transition-all placeholder:text-gray-400"
+									aria-label="Save preset name"
+									className="flex-1 bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-lg px-3 py-2 text-gray-900 dark:text-gray-100 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400/20 focus:border-indigo-400 transition-all placeholder:text-gray-400 dark:placeholder-gray-500"
 								/>
 								<button
 									type="button"
 									onClick={handleSavePreset}
+									aria-label="Save as preset"
 									className="bg-linear-to-r from-indigo-500 to-blue-600 hover:from-indigo-400 hover:to-blue-500 text-white font-bold px-4 py-2 rounded-lg text-sm transition-all duration-150 active:scale-95 shadow-sm hover:shadow-md hover:shadow-indigo-400/20"
 								>
 									Save

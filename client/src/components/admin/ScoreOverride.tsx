@@ -25,7 +25,7 @@ export default function ScoreOverride({
 				<div>
 					<label
 						htmlFor="home-score"
-						className="block text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-1.5"
+						className="block text-[10px] font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-1.5"
 					>
 						Home
 					</label>
@@ -36,13 +36,14 @@ export default function ScoreOverride({
 						value={homeValue}
 						onChange={(e) => onHomeChange(e.target.value)}
 						placeholder={gameState ? String(gameState.homeTeam.score) : "0"}
-						className="w-full bg-white border border-gray-200 rounded-lg px-3 py-2 text-gray-900 text-sm focus:outline-none focus:ring-2 focus:ring-amber-400/20 focus:border-amber-400 transition-all placeholder:text-gray-400"
+						aria-label="Override home score"
+						className="w-full bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-lg px-3 py-2 text-gray-900 dark:text-gray-100 text-sm focus:outline-none focus:ring-2 focus:ring-amber-400/20 focus:border-amber-400 transition-all placeholder:text-gray-400 dark:placeholder-gray-500"
 					/>
 				</div>
 				<div>
 					<label
 						htmlFor="away-score"
-						className="block text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-1.5"
+						className="block text-[10px] font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-1.5"
 					>
 						Away
 					</label>
@@ -53,7 +54,8 @@ export default function ScoreOverride({
 						value={awayValue}
 						onChange={(e) => onAwayChange(e.target.value)}
 						placeholder={gameState ? String(gameState.awayTeam.score) : "0"}
-						className="w-full bg-white border border-gray-200 rounded-lg px-3 py-2 text-gray-900 text-sm focus:outline-none focus:ring-2 focus:ring-amber-400/20 focus:border-amber-400 transition-all placeholder:text-gray-400"
+						aria-label="Override away score"
+						className="w-full bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-lg px-3 py-2 text-gray-900 dark:text-gray-100 text-sm focus:outline-none focus:ring-2 focus:ring-amber-400/20 focus:border-amber-400 transition-all placeholder:text-gray-400 dark:placeholder-gray-500"
 					/>
 				</div>
 			</div>
@@ -61,6 +63,7 @@ export default function ScoreOverride({
 				type="button"
 				onClick={onApply}
 				disabled={loading}
+				aria-label="Apply score override"
 				className="w-full bg-linear-to-r from-amber-500 to-orange-600 hover:from-amber-400 hover:to-orange-500 active:from-amber-300 active:to-orange-400 disabled:from-gray-300 disabled:to-gray-300 disabled:cursor-not-allowed text-white font-bold px-4 py-2.5 rounded-xl transition-all duration-150 active:scale-[0.98] text-sm hover:shadow-lg hover:shadow-amber-500/20 flex items-center justify-center gap-2"
 			>
 				{loading ? (

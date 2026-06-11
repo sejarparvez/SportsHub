@@ -23,7 +23,7 @@ export default function GoalScorers({ goals, homeTeam, awayTeam, light }: Props)
 					</div>
 				)}
 				{homeGoals.length > 0 ? (
-					homeGoals.map((g, i) => (
+					homeGoals.map((g) => (
 						<div key={`${g.minute}-${g.playerName}`} className="flex items-center gap-2 text-sm font-mono">
 							<span className={light ? "text-amber-500" : "text-yellow-400/90"}>⚽</span>
 							<span className={light ? "text-gray-700" : "text-white/80"}>
@@ -70,7 +70,7 @@ export default function GoalScorers({ goals, homeTeam, awayTeam, light }: Props)
 					</div>
 				)}
 				{awayGoals.length > 0 ? (
-					awayGoals.map((g, i) => (
+					awayGoals.map((g) => (
 						<div key={`${g.minute}-${g.playerName}`} className="flex items-center gap-2 text-sm font-mono">
 							<span className={light ? "text-amber-500" : "text-yellow-400/90"}>⚽</span>
 							<span className={light ? "text-gray-500" : "text-white/60"}>

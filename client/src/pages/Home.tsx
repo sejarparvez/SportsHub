@@ -98,11 +98,11 @@ export default function Home() {
 							</>
 						)}
 
-						{/* Bottom broadcast bar */}
+						{/* Bottom broadcast bar — dynamic label by match status */}
 						<div className="absolute -bottom-12 left-1/2 -translate-x-1/2 whitespace-nowrap">
 							<div className="flex items-center gap-3 text-[9px] text-gray-700 font-mono tracking-[0.3em] uppercase">
 								<span className="w-8 h-px bg-gray-700" />
-								<span>Live Broadcast</span>
+								<span>{["IN_PLAY", "PAUSED", "EXTRA_TIME", "PENALTY_SHOOTOUT"].includes(gameState.status) ? "Live Broadcast" : ["FINISHED", "AWARDED"].includes(gameState.status) ? "Match Finished" : "Coming Up"}</span>
 								<span className="w-8 h-px bg-gray-700" />
 							</div>
 						</div>

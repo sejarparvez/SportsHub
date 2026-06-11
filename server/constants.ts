@@ -17,3 +17,4 @@ export const POLL_INTERVALS: Record<MatchStatus, number> = {
 
 export const SSE_KEEPALIVE_INTERVAL = 30_000 // 30 seconds
 export const AUTO_DETECT_INTERVAL = 30_000 // 30 seconds — when tracking SCHEDULED, poll frequently to catch start
+export const POLL_RETRY_INTERVAL = 30_000 // 30 seconds — retry delay on poll error

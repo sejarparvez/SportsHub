@@ -17,17 +17,16 @@ function Scoreboard({ state, light }: Props) {
 
 	useEffect(() => {
 		const prev = prevScoresRef.current;
-		if (state.homeTeam.score !== prev.home) {
-			setScorePop("home");
-		} else if (state.awayTeam.score !== prev.away) {
-			setScorePop("away");
-		}
+		let pop: "home" | "away" | null = null;
+		if (state.homeTeam.score !== prev.home) pop = "home";
+		if (state.awayTeam.score !== prev.away) pop = "away";
 		prevScoresRef.current = {
 			home: state.homeTeam.score,
 			away: state.awayTeam.score,
 		};
 
-		if (scorePop) {
+		if (pop) {
+			setScorePop(pop);
 			const timer = setTimeout(() => setScorePop(null), 600);
 			return () => clearTimeout(timer);
 		}

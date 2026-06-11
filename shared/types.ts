@@ -54,6 +54,8 @@ export interface GameState {
 export interface GoalEventData {
 	matchId: number
 	minute: number
+	team?: "home" | "away"
+	playerName?: string
 }
 
 export interface UpcomingMatch {
@@ -70,6 +72,13 @@ export interface UpcomingMatch {
 	}
 	kickoff: string
 	status: MatchStatus
+}
+
+export interface EventLogEntry {
+	id: number
+	timestamp: string
+	type: "goal" | "halftime" | "fulltime" | "started" | "minute" | "status" | "override"
+	description: string
 }
 
 export type MatchEventType = "halftime" | "fulltime" | "started"

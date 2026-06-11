@@ -4,7 +4,7 @@ import { fileURLToPath } from "node:url"
 import cors from "cors"
 import express from "express"
 import type { MatchStatus } from "../shared/types"
-import { AUTO_DETECT_INTERVAL, POLL_INTERVALS } from "./constants"
+import { AUTO_DETECT_INTERVAL, POLL_INTERVALS, POLL_RETRY_INTERVAL } from "./constants"
 import {
 	fetchIncidents,
 	fetchLiveMatches,
@@ -15,15 +15,67 @@ import {
 	toUpcomingMatch,
 } from "./footballApi"
 import { getState, resetState, setState } from "./gameState"
+import { addToHistory, getHistory, loadHistory } from "./matchHistory"
 import { addClient, broadcast, removeClient } from "./sse"
 
 const app = express()
 const httpServer = createServer(app)
 
-const PORT = Number.parseInt(process.env.PORT || "3000", 10)
+const envPort = process.env.PORT
+if (envPort !== undefined) {
+	const parsed = Number.parseInt(envPort, 10)
+	if (!Number.isFinite(parsed) || parsed < 1 || parsed > 65535) {
+		console.warn(`Warning: Invalid PORT "${envPort}", falling back to 3000`)
+	}
+}
+const PORT = Number.parseInt(envPort || "3000", 10)
 
 app.use(cors())
 app.use(express.json())
+
+// Reject non-JSON POST/PUT/PATCH requests with a clear 415
+app.use((req, res, next) => {
+	if (["POST", "PUT", "PATCH"].includes(req.method) && !req.is("application/json")) {
+		res.status(415).json({ error: "Content-Type must be application/json" })
+		return
+	}
+	next()
+})
+
+// ─── Rate limiting (admin API) ───
+
+const rateLimitMap = new Map<string, { count: number; resetTime: number }>()
+const RATE_LIMIT = 30
+const RATE_WINDOW = 60_000
+
+setInterval(() => {
+	const now = Date.now()
+	for (const [key, val] of rateLimitMap) {
+		if (val.resetTime <= now) rateLimitMap.delete(key)
+	}
+}, 300_000)
+
+app.use((req, res, next) => {
+	if (["POST", "PUT", "PATCH"].includes(req.method) && req.path.startsWith("/api/")) {
+		const ip: string = req.ip ?? req.socket.remoteAddress ?? "unknown"
+		const now = Date.now()
+		const entry = rateLimitMap.get(ip)
+		if (!entry || entry.resetTime <= now) {
+			rateLimitMap.set(ip, { count: 1, resetTime: now + RATE_WINDOW })
+			next()
+			return
+		}
+		entry.count++
+		if (entry.count > RATE_LIMIT) {
+			res.set("Retry-After", String(Math.ceil((entry.resetTime - now) / 1000)))
+			res.status(429).json({ error: "Too many requests. Try again later." })
+			return
+		}
+		next()
+		return
+	}
+	next()
+})
 
 // Serve production build
 const __filename = fileURLToPath(import.meta.url)
@@ -98,6 +150,10 @@ app.post("/api/match/override", (req, res) => {
 		awayScore: number
 	}
 	const current = getState()
+	if (current.matchId === null && current.homeTeam.name === "Home") {
+		res.status(400).json({ error: "No active match" })
+		return
+	}
 	const updated = setState({
 		homeTeam: { ...current.homeTeam, score: homeScore },
 		awayTeam: { ...current.awayTeam, score: awayScore },
@@ -156,11 +212,14 @@ app.post("/api/match/create", (req, res) => {
 
 	setState(state)
 	broadcast("state:init", state)
+	if (state.status === "IN_PLAY" || state.status === "EXTRA_TIME") {
+		broadcast("match:started", state)
+	}
 	res.json({ ok: true, state })
 })
 
 app.post("/api/match/goal", (req, res) => {
-	const { team } = req.body as { team: "home" | "away" }
+	const { team, playerName } = req.body as { team: "home" | "away"; playerName?: string }
 	if (!team || (team !== "home" && team !== "away")) {
 		res.status(400).json({ error: "team must be 'home' or 'away'" })
 		return
@@ -173,7 +232,7 @@ app.post("/api/match/goal", (req, res) => {
 			score: current[team === "home" ? "homeTeam" : "awayTeam"].score + 1,
 		},
 	})
-	broadcast("match:goal", updated)
+	broadcast("match:goal", { ...updated, _playerName: playerName })
 	broadcast("state:update", updated)
 	res.json({ ok: true, state: updated })
 })
@@ -214,6 +273,7 @@ app.post("/api/match/set-status", (req, res) => {
 	if (matchStatus === "PAUSED" && current.status === "IN_PLAY") {
 		broadcast("match:halftime", updated)
 	} else if (matchStatus === "FINISHED" || matchStatus === "AWARDED") {
+		addToHistory(updated)
 		broadcast("match:fulltime", updated)
 	} else if (
 		matchStatus === "IN_PLAY" &&
@@ -228,6 +288,10 @@ app.post("/api/match/set-status", (req, res) => {
 
 app.get("/api/state", (_req, res) => {
 	res.json(getState())
+})
+
+app.get("/api/matches/history", (_req, res) => {
+	res.json(getHistory())
 })
 
 // --- SSE ---
@@ -245,7 +309,11 @@ app.get("/api/events", (req, res) => {
 
 // --- SPA fallback ---
 
-app.use((_req, res) => {
+app.use((req, res) => {
+	if (req.path.startsWith("/api")) {
+		res.status(404).json({ error: "not found" })
+		return
+	}
 	res.sendFile(path.join(distPath, "index.html"))
 })
 
@@ -277,8 +345,13 @@ function startPolling(matchId: number): void {
 			const newState = toGameState(match)
 			const oldState = getState()
 
-			// Preserve goal timeline from initial fetch (not re-fetched during polling)
-			newState.goals = oldState.goals
+			// Fetch goal timeline — refresh on each poll to catch new goals
+			try {
+				const incidents = await fetchIncidents(matchId)
+				newState.goals = toGoalScorers(incidents)
+			} catch {
+				newState.goals = oldState.goals
+			}
 
 			// Detect all events before any broadcast
 			const justStarted =
@@ -310,6 +383,7 @@ function startPolling(matchId: number): void {
 				broadcast("match:goal", newState)
 			}
 			if (justFinished) {
+				addToHistory(newState)
 				broadcast("match:fulltime", newState)
 				stopPolling()
 			}
@@ -331,7 +405,7 @@ function startPolling(matchId: number): void {
 		} catch (err) {
 			console.error("Poll error:", getErrorMessage(err))
 			// Retry after 30s on error
-			pollTimer = setTimeout(poll, 30_000)
+			pollTimer = setTimeout(poll, POLL_RETRY_INTERVAL)
 		} finally {
 			isPolling = false
 		}
@@ -351,6 +425,8 @@ function stopPolling(): void {
 }
 
 // --- Start ---
+
+loadHistory()
 
 httpServer.listen(PORT, () => {
 	console.log(`SportsHub server running on http://localhost:${PORT}`)
