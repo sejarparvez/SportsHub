@@ -6,7 +6,7 @@ import StatusBadge from "../components/StatusBadge";
 import { useGameState } from "../hooks/useGameState";
 
 export default function Home() {
-	const { gameState, goalEvent, matchEvent } = useGameState();
+	const { gameState, goalEvent, matchEvent, dismissFulltime } = useGameState();
 
 	return (
 		<div className="fixed inset-0 flex flex-col items-center justify-center overflow-hidden select-none">
@@ -92,7 +92,7 @@ export default function Home() {
 								{/* Goal scorers */}
 								{gameState.goals && gameState.goals.length > 0 && (
 									<div className="mt-3">
-										<GoalScorers goals={gameState.goals} homeTeam={gameState.homeTeam.name} awayTeam={gameState.awayTeam.name} light />
+										<GoalScorers goals={gameState.goals} homeTeam={gameState.homeTeam.name} awayTeam={gameState.awayTeam.name} />
 									</div>
 								)}
 							</>
@@ -140,7 +140,7 @@ export default function Home() {
 			</div>
 
 			{/* ═══ Event Popups ═══ */}
-			<EventPopup goalEvent={goalEvent} matchEvent={matchEvent} />
+			<EventPopup goalEvent={goalEvent} matchEvent={matchEvent} onDismissFulltime={dismissFulltime} />
 		</div>
 	);
 }

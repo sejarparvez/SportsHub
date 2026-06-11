@@ -69,15 +69,6 @@ export default function MatchControls({ gameState, onGoal, onSetStatus, onSetMin
 					<button
 						type="button"
 						onClick={() => onSetStatus("FINISHED")}
-						aria-label="Set match to fulltime"
-						className="bg-linear-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 active:from-purple-400 active:to-pink-400 text-white font-bold px-3 py-2.5 rounded-lg text-sm transition-all duration-150 active:scale-95 flex items-center justify-center gap-1.5 shadow-sm hover:shadow-md hover:shadow-purple-400/20"
-					>
-						<span>⏸️</span>
-						<span>Halftime</span>
-					</button>
-					<button
-						type="button"
-						onClick={() => onSetStatus("FINISHED")}
 						className="bg-linear-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 active:from-purple-400 active:to-pink-400 text-white font-bold px-3 py-2.5 rounded-lg text-sm transition-all duration-150 active:scale-95 flex items-center justify-center gap-1.5 shadow-sm hover:shadow-md hover:shadow-purple-400/20"
 					>
 						<span>🏁</span>

@@ -59,6 +59,11 @@ export function useGameState() {
 		}
 	}, []);
 
+	const dismissFulltime = useCallback(() => {
+		clearFulltimeTimer();
+		setMatchEvent(null);
+	}, [clearFulltimeTimer]);
+
 	useEffect(() => {
 		const es = new EventSource("/api/events");
 
@@ -171,5 +176,5 @@ export function useGameState() {
 		};
 	}, [clearGoalTimer, clearHalftimeTimer, clearFulltimeTimer]);
 
-	return { gameState, goalEvent, matchEvent, connected, eventLog, addLogEntry };
+	return { gameState, goalEvent, matchEvent, connected, eventLog, dismissFulltime };
 }

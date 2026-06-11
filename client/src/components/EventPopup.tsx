@@ -3,6 +3,7 @@ import type { GoalEventData, MatchEventType } from "@shared/types";
 interface Props {
 	goalEvent: GoalEventData | null;
 	matchEvent: MatchEventType | null;
+	onDismissFulltime?: () => void;
 }
 
 const TEAM_LABELS: Record<string, string> = {
@@ -85,8 +86,8 @@ function FulltimePopup({ onDismiss }: { onDismiss: () => void }) {
 	);
 }
 
-export default function EventPopup({ goalEvent, matchEvent }: Props) {
-	if (matchEvent === "fulltime") return <FulltimePopup onDismiss={() => {}} />;
+export default function EventPopup({ goalEvent, matchEvent, onDismissFulltime }: Props) {
+	if (matchEvent === "fulltime") return <FulltimePopup onDismiss={onDismissFulltime ?? (() => {})} />;
 	if (matchEvent === "halftime") return <HalftimePopup />;
 	if (matchEvent === "started") return <MatchStartedPopup />;
 	if (goalEvent) return <GoalPopup data={goalEvent} />;

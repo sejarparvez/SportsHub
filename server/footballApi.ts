@@ -38,17 +38,12 @@ function curlFetch(path: string): Promise<Response> {
 
 interface SofascoreScore {
 	current?: number
-	display?: number
 	period1?: number
-	period2?: number
-	normaltime?: number
 }
 
 interface SofascoreTeam {
 	id: number
 	name: string
-	shortName?: string
-	nameCode?: string
 	teamColors?: {
 		primary?: string
 		secondary?: string
@@ -75,9 +70,6 @@ interface SofascoreEvent {
 	time?: {
 		currentPeriodStartTimestamp?: number
 		injuryTime1?: number
-		initial?: number
-		max?: number
-		extra?: number
 	}
 	startTimestamp: number
 	tournament: {
@@ -101,10 +93,7 @@ interface SofascoreIncident {
 	time: number
 	addedTime?: number
 	incidentType: string
-	incidentClass?: string
 	isHome: boolean
-	homeScore: number
-	awayScore: number
 	player?: {
 		name: string
 		shortName?: string
