@@ -92,6 +92,9 @@ function getErrorMessage(err: unknown): string {
 // --- REST API ---
 
 app.get("/api/matches/live", async (_req, res) => {
+	res.set("Cache-Control", "no-store, no-cache, must-revalidate, proxy-revalidate")
+	res.set("Pragma", "no-cache")
+	res.set("Expires", "0")
 	try {
 		const matches = await fetchLiveMatches()
 		res.json(matches.map(toGameState))
